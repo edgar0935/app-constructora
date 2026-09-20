@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  db:
+    image: mariadb:10.6
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: constructora
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    ports:
+      - "5174:5174"
+    environment:
+      - PORT=5174
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=constructora
+      - JWT_SECRET=dev-secret-change-me
+    depends_on:
+      - db
+
+  frontend:
+    build: ./inventario-constructora
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5174/api
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
